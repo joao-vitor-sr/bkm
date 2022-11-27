@@ -1,4 +1,4 @@
-use crate::db::Db;
+use crate::{db::{Db, books::Book}, ui::list::StatefulList};
 use anyhow::Result;
 use std::{path::PathBuf, time::Duration};
 
@@ -8,6 +8,7 @@ pub struct App<'a> {
     pub should_quit: bool,
     pub input_timeout: Duration,
     pub db: Db,
+    pub books_list: StatefulList<(String, usize)>,
 }
 
 impl<'a> App<'a> {
@@ -18,11 +19,14 @@ impl<'a> App<'a> {
     ) -> Result<App<'a>> {
         let db = Db::new(custom_db_path)?;
         db.set_up_tables()?;
+
+        let books = Book::return_stateful_books(&db.db_file_path)?;
         Ok(App {
             title,
             should_quit: false,
             input_timeout,
             db,
+            books_list: books,
         })
     }
 

@@ -1,4 +1,4 @@
-mod books;
+pub mod books;
 
 use anyhow::{anyhow, Result};
 use std::{

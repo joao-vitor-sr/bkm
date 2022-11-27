@@ -24,6 +24,9 @@ impl Term {
                 if let Event::Key(key) = event::read()? {
                     match key.code {
                         KeyCode::Char(c) => app.on_key(c),
+                        KeyCode::Up => app.books_list.previous(),
+                        KeyCode::Down => app.books_list.next(),
+                        KeyCode::Left => app.books_list.unselect(),
                         _ => {}
                     }
                 }
