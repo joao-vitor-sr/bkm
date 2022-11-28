@@ -10,7 +10,10 @@ use tui::{
     Terminal,
 };
 
-use crate::{app::App, ui::Ui};
+use crate::{
+    app::{App, InputMode},
+    ui::Ui,
+};
 
 #[derive(Debug)]
 pub struct Term {}
@@ -22,12 +25,27 @@ impl Term {
 
             if crossterm::event::poll(app.input_timeout)? {
                 if let Event::Key(key) = event::read()? {
-                    match key.code {
-                        KeyCode::Char(c) => app.on_key(c),
-                        KeyCode::Up => app.books_list.previous(),
-                        KeyCode::Down => app.books_list.next(),
-                        KeyCode::Left => app.books_list.unselect(),
-                        _ => {}
+                    match app.add_book_mode {
+                        InputMode::Normal => match key.code {
+                            KeyCode::Char(c) => app.on_key(c),
+                            KeyCode::Up => app.books_list.previous(),
+                            KeyCode::Down => app.books_list.next(),
+                            KeyCode::Left => app.books_list.unselect(),
+                            _ => {}
+                        },
+                        InputMode::Editing => match key.code {
+                            KeyCode::Enter => {
+                                app.books.push(app.input.drain(..).collect());
+                            }
+                            KeyCode::Char(c) => {
+                                app.input.push(c);
+                            }
+                            KeyCode::Backspace => {
+                                app.input.pop();
+                            }
+                            KeyCode::Esc => app.add_book_mode = InputMode::Normal,
+                            _ => {}
+                        },
                     }
                 }
             }

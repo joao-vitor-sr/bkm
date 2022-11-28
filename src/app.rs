@@ -1,6 +1,15 @@
-use crate::{db::{Db, books::Book}, ui::list::StatefulList};
+use crate::{
+    db::{books::Book, Db},
+    ui::list::StatefulList,
+};
 use anyhow::Result;
 use std::{path::PathBuf, time::Duration};
+
+#[derive(Debug)]
+pub enum InputMode {
+    Normal,
+    Editing,
+}
 
 #[derive(Debug)]
 pub struct App<'a> {
@@ -9,6 +18,13 @@ pub struct App<'a> {
     pub input_timeout: Duration,
     pub db: Db,
     pub books_list: StatefulList<(String, usize)>,
+    pub add_book_mode: InputMode,
+
+    // current value of the input box
+    pub input: String,
+
+    // history of the recorded books
+    pub books: Vec<String>,
 }
 
 impl<'a> App<'a> {
@@ -27,6 +43,9 @@ impl<'a> App<'a> {
             input_timeout,
             db,
             books_list: books,
+            add_book_mode: InputMode::Normal,
+            books: Vec::new(),
+            input: String::new(),
         })
     }
 
@@ -35,6 +54,7 @@ impl<'a> App<'a> {
             'q' => {
                 self.should_quit = true;
             }
+            'a' => self.add_book_mode = InputMode::Editing,
             _ => {}
         }
     }
