@@ -41,6 +41,7 @@ dependencies = [
  "dirs",
  "rusqlite",
  "tui",
+ "unicode-width",
 ]
 
 [[package]]
