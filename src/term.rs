@@ -36,6 +36,7 @@ impl Term {
                         InputMode::Editing => match key.code {
                             KeyCode::Enter => {
                                 app.books.push(app.input.drain(..).collect());
+                                app.insert_books()?;
                             }
                             KeyCode::Char(c) => {
                                 app.input.push(c);

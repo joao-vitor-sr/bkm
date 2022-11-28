@@ -17,7 +17,7 @@ pub struct App<'a> {
     pub should_quit: bool,
     pub input_timeout: Duration,
     pub db: Db,
-    pub books_list: StatefulList<(String, usize)>,
+    pub books_list: StatefulList<(String, String)>,
     pub add_book_mode: InputMode,
 
     // current value of the input box
@@ -28,6 +28,15 @@ pub struct App<'a> {
 }
 
 impl<'a> App<'a> {
+    pub fn insert_books(&mut self) -> Result<()> {
+        for book in &self.books {
+            let id = Book::insert_book(&self.db.db_file_path, book)?;
+            self.books_list.items.push((book.clone(), id));
+        }
+        self.books = Vec::new();
+        Ok(())
+    }
+
     pub fn new(
         title: &'a str,
         input_timeout: Duration,

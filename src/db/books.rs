@@ -1,19 +1,35 @@
+use crate::ui::list::StatefulList;
 use anyhow::Result;
 use rusqlite::Connection;
 use std::path::PathBuf;
-
-use crate::ui::list::StatefulList;
+use uuid::Uuid;
 
 #[derive(Debug)]
-pub struct Book {
-    pub id: usize,
+pub struct Book<'a> {
+    pub id: String,
     pub name: String,
+    pub db_path: Option<&'a PathBuf>,
 }
 
-impl Book {
-    pub fn return_stateful_books(db_path: &PathBuf) -> Result<StatefulList<(String, usize)>> {
+impl<'a> Book<'a> {
+    pub fn insert_book(db_path: &PathBuf, name: &String) -> Result<String> {
+        let conn = Connection::open(db_path)?;
+
+        let id = Uuid::new_v4().hyphenated().to_string();
+
+        conn.execute(
+            "INSERT INTO books (name, id) VALUES (?1, ?2)",
+            (name, id.clone()),
+        )?;
+        Ok(id)
+    }
+
+    pub fn return_stateful_books(db_path: &PathBuf) -> Result<StatefulList<(String, String)>> {
         let books = Book::return_books(db_path)?;
-        let books: Vec<(String, usize)> = books.iter().map(|f| (f.name.clone(), f.id)).collect();
+        let books: Vec<(String, String)> = books
+            .iter()
+            .map(|f| (f.name.clone(), f.id.clone()))
+            .collect();
         Ok(StatefulList::with_items(books))
     }
 
@@ -25,6 +41,7 @@ impl Book {
             Ok(Book {
                 id: row.get(0)?,
                 name: row.get(1)?,
+                db_path: None,
             })
         })?;
 
@@ -41,7 +58,7 @@ impl Book {
 
         conn.execute(
             "CREATE TABLE IF NOT EXISTS books (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id TEXT PRIMARY KEY,
                         name TEXT NOT NULL)",
             (),
         )?;
