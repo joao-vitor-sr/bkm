@@ -10,6 +10,8 @@ mod cli;
 mod term;
 mod ui;
 mod db;
+mod handlers;
+mod event;
 
 fn main() -> Result<()> {
     let args = Cli::parse();

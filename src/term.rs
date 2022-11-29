@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{DisableMouseCapture, EnableMouseCapture},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -11,7 +11,9 @@ use tui::{
 };
 
 use crate::{
-    app::{App, InputMode},
+    app::App,
+    event::{self, Key},
+    handlers,
     ui::Ui,
 };
 
@@ -20,41 +22,26 @@ pub struct Term {}
 
 impl Term {
     pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
-        loop {
+        let events = event::Events::new(250);
+
+        Ok(loop {
             terminal.draw(|f| Ui::draw(f, &mut app))?;
 
-            if crossterm::event::poll(app.input_timeout)? {
-                if let Event::Key(key) = event::read()? {
-                    match app.add_book_mode {
-                        InputMode::Normal => match key.code {
-                            KeyCode::Char(c) => app.on_key(c),
-                            KeyCode::Up => app.books_list.previous(),
-                            KeyCode::Down => app.books_list.next(),
-                            KeyCode::Left => app.books_list.unselect(),
-                            _ => {}
-                        },
-                        InputMode::Editing => match key.code {
-                            KeyCode::Enter => {
-                                app.books.push(app.input.drain(..).collect());
-                                app.insert_books()?;
-                            }
-                            KeyCode::Char(c) => {
-                                app.input.push(c);
-                            }
-                            KeyCode::Backspace => {
-                                app.input.pop();
-                            }
-                            KeyCode::Esc => app.add_book_mode = InputMode::Normal,
-                            _ => {}
-                        },
+            match events.next()? {
+                event::Event::Input(key) => {
+                    if key == Key::Ctrl('c') {
+                        break;
                     }
+
+                    handlers::handle_app(key, &mut app);
                 }
+                _ => {}
             }
 
             if app.should_quit {
                 return Ok(());
             }
-        }
+        })
     }
 
     pub fn run(input_timeout: Duration, custom_db_path: Option<PathBuf>) -> Result<()> {
