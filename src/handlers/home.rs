@@ -6,7 +6,7 @@ use crate::{
 pub fn handler(key: Key, app: &mut App) {
     match key {
         Key::Char('a') => {
-            app.set_current_route_state(Some(ActiveBlock::Input), Some(ActiveBlock::Input));
+            app.set_current_route_state(Some(ActiveBlock::Input));
         }
         _ => {}
     }

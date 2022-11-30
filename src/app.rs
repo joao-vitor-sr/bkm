@@ -3,7 +3,7 @@ use crate::{
     ui::list::StatefulList,
 };
 use anyhow::Result;
-use std::{path::PathBuf, time::Duration};
+use std::path::PathBuf;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ActiveBlock {
@@ -47,11 +47,7 @@ impl<'a> App<'a> {
         self.navigation_stack.last_mut().unwrap()
     }
 
-    pub fn set_current_route_state(
-        &mut self,
-        active_block: Option<ActiveBlock>,
-        hovered_block: Option<ActiveBlock>,
-    ) {
+    pub fn set_current_route_state(&mut self, active_block: Option<ActiveBlock>) {
         let mut current_route = self.get_current_route_mut();
         if let Some(active_block) = active_block {
             current_route.block = active_block;

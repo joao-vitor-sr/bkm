@@ -18,7 +18,7 @@ pub fn handler(key: Key, app: &mut App) -> Result<()> {
             app.input.pop();
         }
         Key::Esc => {
-            app.set_current_route_state(Some(ActiveBlock::Home), Some(ActiveBlock::Home));
+            app.set_current_route_state(Some(ActiveBlock::Home));
         }
         _ => {}
     }
