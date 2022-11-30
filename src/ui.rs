@@ -38,7 +38,7 @@ impl Ui {
     }
 
     pub fn render_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let input_mode = match app.get_current_route().active_block {
+        let input_mode = match app.get_current_route().block {
             ActiveBlock::Input => true,
             _ => false,
         };
@@ -59,7 +59,7 @@ impl Ui {
     }
 
     pub fn render_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let (msg, style) = match app.get_current_route().active_block {
+        let (msg, style) = match app.get_current_route().block {
             ActiveBlock::Input => (
                 vec![
                     Span::raw("Press "),

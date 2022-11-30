@@ -19,7 +19,7 @@ pub fn handle_app(key: Key, app: &mut App) -> Result<()> {
 
 fn handle_block_input(key: Key, app: &mut App) -> Result<()> {
     let current_route = app.get_current_route();
-    match current_route.active_block {
+    match current_route.block {
         ActiveBlock::Input => {
             input::handler(key, app)?;
         }

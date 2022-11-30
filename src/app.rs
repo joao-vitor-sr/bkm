@@ -14,13 +14,11 @@ pub enum ActiveBlock {
 
 #[derive(Debug)]
 pub struct Route {
-    pub active_block: ActiveBlock,
-    pub hovered_block: ActiveBlock,
+    pub block: ActiveBlock,
 }
 
 const DEFAULT_ROUTE: Route = Route {
-    active_block: ActiveBlock::Home,
-    hovered_block: ActiveBlock::Home,
+    block: ActiveBlock::Home,
 };
 
 #[derive(Debug)]
@@ -56,10 +54,7 @@ impl<'a> App<'a> {
     ) {
         let mut current_route = self.get_current_route_mut();
         if let Some(active_block) = active_block {
-            current_route.active_block = active_block;
-        }
-        if let Some(hovered_block) = hovered_block {
-            current_route.hovered_block = hovered_block;
+            current_route.block = active_block;
         }
     }
 
