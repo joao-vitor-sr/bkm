@@ -45,13 +45,17 @@ impl Term {
     }
 
     pub fn run(input_timeout: Duration, custom_db_path: Option<PathBuf>) -> Result<()> {
+        // Terminal initialization
         enable_raw_mode()?;
         let mut stdout = io::stdout();
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-        let backend = CrosstermBackend::new(stdout);
-        let mut terminal = Terminal::new(backend)?;
 
-        let app = App::new("BKM", input_timeout, custom_db_path)?;
+        let backend = CrosstermBackend::new(stdout);
+
+        let mut terminal = Terminal::new(backend)?;
+        terminal.hide_cursor()?;
+
+        let app = App::new("BKM - Book Manager", input_timeout, custom_db_path)?;
         let res = Term::run_app(&mut terminal, app);
 
         disable_raw_mode()?;
