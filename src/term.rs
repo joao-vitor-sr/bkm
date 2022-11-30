@@ -33,7 +33,7 @@ impl Term {
                         break;
                     }
 
-                    handlers::handle_app(key, &mut app);
+                    handlers::handle_app(key, &mut app)?;
                 }
                 _ => {}
             }

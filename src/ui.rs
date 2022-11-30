@@ -1,4 +1,4 @@
-use crate::app::{App, InputMode};
+use crate::app::{ActiveBlock, App};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -38,34 +38,29 @@ impl Ui {
     }
 
     pub fn render_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+        let input_mode = match app.get_current_route().active_block {
+            ActiveBlock::Input => true,
+            _ => false,
+        };
+
         let input = Paragraph::new(app.input.as_ref())
-            .style(match app.add_book_mode {
-                InputMode::Normal => Style::default(),
-                InputMode::Editing => Style::default().fg(Color::Yellow),
+            .style(match input_mode {
+                false => Style::default(),
+                true => Style::default().fg(Color::Yellow),
             })
             .block(Block::default().borders(Borders::ALL).title("Book Name"));
 
         f.render_widget(input, area);
 
-        match app.add_book_mode {
-            InputMode::Normal => {}
-            InputMode::Editing => f.set_cursor(area.x + app.input.width() as u16 + 1, area.y + 1),
+        match input_mode {
+            false => {}
+            true => f.set_cursor(area.x + app.input.width() as u16 + 1, area.y + 1),
         }
     }
 
     pub fn render_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let (msg, style) = match app.add_book_mode {
-            InputMode::Normal => (
-                vec![
-                    Span::raw("Press "),
-                    Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to exit, "),
-                    Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to add a book"),
-                ],
-                Style::default().add_modifier(Modifier::RAPID_BLINK),
-            ),
-            InputMode::Editing => (
+        let (msg, style) = match app.get_current_route().active_block {
+            ActiveBlock::Input => (
                 vec![
                     Span::raw("Press "),
                     Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
@@ -74,6 +69,16 @@ impl Ui {
                     Span::raw(" to record the message"),
                 ],
                 Style::default(),
+            ),
+            _ => (
+                vec![
+                    Span::raw("Press "),
+                    Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to exit, "),
+                    Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to add a book"),
+                ],
+                Style::default().add_modifier(Modifier::RAPID_BLINK),
             ),
         };
 
