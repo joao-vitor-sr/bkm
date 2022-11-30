@@ -4,7 +4,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use std::{io, path::PathBuf, time::Duration};
+use std::{io, path::PathBuf};
 use tui::{
     backend::{Backend, CrosstermBackend},
     Terminal,
@@ -22,7 +22,7 @@ pub struct Term {}
 
 impl Term {
     pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
-        let events = event::Events::new(250);
+        let events = event::Events::new(app.tick_rate_milliseconds);
 
         Ok(loop {
             terminal.draw(|f| Ui::draw(f, &mut app))?;
@@ -44,7 +44,7 @@ impl Term {
         })
     }
 
-    pub fn run(input_timeout: Duration, custom_db_path: Option<PathBuf>) -> Result<()> {
+    pub fn run(tick_rate_milliseconds: Option<u64>, custom_db_path: Option<PathBuf>) -> Result<()> {
         // Terminal initialization
         enable_raw_mode()?;
         let mut stdout = io::stdout();
@@ -55,7 +55,7 @@ impl Term {
         let mut terminal = Terminal::new(backend)?;
         terminal.hide_cursor()?;
 
-        let app = App::new("BKM - Book Manager", input_timeout, custom_db_path)?;
+        let app = App::new("BKM - Book Manager", tick_rate_milliseconds, custom_db_path)?;
         let res = Term::run_app(&mut terminal, app);
 
         disable_raw_mode()?;

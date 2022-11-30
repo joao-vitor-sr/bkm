@@ -26,7 +26,7 @@ pub struct App<'a> {
     navigation_stack: Vec<Route>,
     pub title: &'a str,
     pub should_quit: bool,
-    pub input_timeout: Duration,
+    pub tick_rate_milliseconds: u64,
     pub db: Db,
     pub books_list: StatefulList<(String, String)>,
 
@@ -69,7 +69,7 @@ impl<'a> App<'a> {
 
     pub fn new(
         title: &'a str,
-        input_timeout: Duration,
+        tick_rate_milliseconds: Option<u64>,
         custom_db_path: Option<PathBuf>,
     ) -> Result<App<'a>> {
         let db = Db::new(custom_db_path)?;
@@ -80,7 +80,10 @@ impl<'a> App<'a> {
             title,
             should_quit: false,
             navigation_stack: vec![DEFAULT_ROUTE],
-            input_timeout,
+            tick_rate_milliseconds: match tick_rate_milliseconds {
+                Some(v) => v,
+                None => 250,
+            },
             db,
             books_list: books,
             books: Vec::new(),

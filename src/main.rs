@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use anyhow::Result;
 use clap::Parser;
 use cli::Cli;
@@ -15,7 +13,6 @@ mod event;
 
 fn main() -> Result<()> {
     let args = Cli::parse();
-    let input_timeout = Duration::from_millis(args.input_timeout);
-    Term::run(input_timeout, args.custom_db_path)?;
+    Term::run(args.tick_rate_milliseconds, args.custom_db_path)?;
     Ok(())
 }
