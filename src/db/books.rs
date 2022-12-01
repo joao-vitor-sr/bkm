@@ -1,38 +1,26 @@
-use crate::ui::list::StatefulList;
 use anyhow::Result;
 use rusqlite::Connection;
 use std::path::PathBuf;
 use uuid::Uuid;
 
 #[derive(Debug)]
-pub struct Book<'a> {
+pub struct Book {
     pub id: String,
     pub name: String,
-    pub db_path: Option<&'a PathBuf>,
 }
 
-impl<'a> Book<'a> {
-    pub fn insert_book(db_path: &PathBuf, name: &String) -> Result<String> {
+impl Book {
+    pub fn insert_book(db_path: &PathBuf, name: String) -> Result<(String, String)> {
         let conn = Connection::open(db_path)?;
 
         let id = Uuid::new_v4().hyphenated().to_string();
 
         conn.execute(
             "INSERT INTO books (name, id) VALUES (?1, ?2)",
-            (name, id.clone()),
+            (name.clone(), id.clone()),
         )?;
-        Ok(id)
+        Ok((id, name))
     }
-
-    pub fn return_stateful_books(db_path: &PathBuf) -> Result<StatefulList<(String, String)>> {
-        let books = Book::return_books(db_path)?;
-        let books: Vec<(String, String)> = books
-            .iter()
-            .map(|f| (f.name.clone(), f.id.clone()))
-            .collect();
-        Ok(StatefulList::with_items(books))
-    }
-
     pub fn return_books(db_path: &PathBuf) -> Result<Vec<Book>> {
         let conn = Connection::open(db_path)?;
 
@@ -41,7 +29,6 @@ impl<'a> Book<'a> {
             Ok(Book {
                 id: row.get(0)?,
                 name: row.get(1)?,
-                db_path: None,
             })
         })?;
 

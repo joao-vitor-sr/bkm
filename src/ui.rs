@@ -4,13 +4,9 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans, Text},
-    widgets::{Block, Borders, List, ListItem, Paragraph},
+    widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     Frame,
 };
-
-use unicode_width::UnicodeWidthStr;
-
-pub mod list;
 
 #[derive(Debug)]
 pub struct Ui {}
@@ -38,27 +34,44 @@ impl Ui {
     }
 
     pub fn render_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let input_mode = match app.get_current_route().block {
+        let focused = match app.get_current_route().block {
             ActiveBlock::Input => true,
             _ => false,
         };
 
-        let input = Paragraph::new(app.input.as_ref())
-            .style(match input_mode {
-                false => Style::default(),
-                true => Style::default().fg(Color::Yellow),
-            })
-            .block(Block::default().borders(Borders::ALL).title("Book Name"));
+        let fg_color = match focused {
+            true => Color::Yellow,
+            false => Color::White,
+        };
 
+        let input_string: String = app.input.iter().collect();
+        let lines = Text::from((&input_string).as_str());
+
+        let input = Paragraph::new(lines).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(Span::styled("Book", Style::default().fg(fg_color)))
+                .border_style(Style::default().fg(fg_color)),
+        );
         f.render_widget(input, area);
 
-        match input_mode {
-            false => {}
-            true => f.set_cursor(area.x + app.input.width() as u16 + 1, area.y + 1),
+        match focused {
+            true => f.set_cursor(area.x + app.input.len() as u16 + 1, area.y + 1),
+            _ => {}
         }
     }
 
     pub fn render_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+        let focused = match app.get_current_route().block {
+            ActiveBlock::Home => true,
+            _ => false,
+        };
+
+        let fg_color = match focused {
+            true => Color::Yellow,
+            false => Color::White,
+        };
+
         let (msg, style) = match app.get_current_route().block {
             ActiveBlock::Input => (
                 vec![
@@ -68,7 +81,7 @@ impl Ui {
                     Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
                     Span::raw(" to record the message"),
                 ],
-                Style::default(),
+                Style::default().fg(fg_color),
             ),
             _ => (
                 vec![
@@ -76,39 +89,64 @@ impl Ui {
                     Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
                     Span::raw(" to exit, "),
                     Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to add a book"),
+                    Span::raw(" to add a book, "),
+                    Span::styled("b", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(" to select a book"),
                 ],
-                Style::default().add_modifier(Modifier::RAPID_BLINK),
+                Style::default()
+                    .add_modifier(Modifier::RAPID_BLINK)
+                    .fg(fg_color),
             ),
         };
 
         let mut text = Text::from(Spans::from(msg));
         text.patch_style(style);
-        let help_msg =
-            Paragraph::new(text).block(Block::default().title("Home").borders(Borders::ALL));
+        let help_msg = Paragraph::new(text).block(
+            Block::default()
+                .style(Style::default().fg(fg_color))
+                .title("Home")
+                .borders(Borders::ALL),
+        );
         f.render_widget(help_msg, area);
     }
 
     pub fn render_books<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let items: Vec<ListItem> = app
-            .books_list
-            .items
-            .iter()
-            .map(|i| {
-                let lines = vec![Spans::from(i.0.clone())];
-                ListItem::new(lines).style(Style::default())
-            })
-            .collect();
+        let no_book_msg = Span::raw("No books found");
 
-        let items = List::new(items)
-            .block(Block::default().borders(Borders::ALL).title("Books"))
+        let focused = match app.get_current_route().block {
+            ActiveBlock::Books => true,
+            _ => false,
+        };
+
+        let fg_color = match focused {
+            true => Color::Yellow,
+            _ => Color::White,
+        };
+
+        let items = if app.books.len() == 0 {
+            vec![ListItem::new(no_book_msg)]
+        } else {
+            app.books
+                .iter()
+                .map(|book| ListItem::new(Span::raw(&book.name)))
+                .collect()
+        };
+
+        let list = List::new(items)
+            .block(
+                Block::default()
+                    .title(Span::styled("Books", Style::default().fg(fg_color)))
+                    .borders(Borders::ALL)
+                    .border_style(Style::default().fg(fg_color)),
+            )
+            .style(Style::default().fg(fg_color))
             .highlight_style(
                 Style::default()
                     .fg(Color::LightGreen)
                     .add_modifier(Modifier::BOLD),
-            )
-            .highlight_symbol(" ");
+            );
 
-        f.render_stateful_widget(items, area, &mut app.books_list.state);
+        let mut state = ListState::default();
+        f.render_stateful_widget(list, area, &mut state);
     }
 }

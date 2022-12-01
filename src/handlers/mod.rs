@@ -1,3 +1,4 @@
+mod books;
 mod home;
 mod input;
 
@@ -26,7 +27,9 @@ fn handle_block_input(key: Key, app: &mut App) -> Result<()> {
         ActiveBlock::Home => {
             home::handler(key, app);
         }
-        _ => {}
+        ActiveBlock::Books => {
+            books::handler(key, app);
+        }
     }
     Ok(())
 }

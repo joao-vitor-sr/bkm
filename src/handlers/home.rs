@@ -8,6 +8,9 @@ pub fn handler(key: Key, app: &mut App) {
         Key::Char('a') => {
             app.set_current_route_state(Some(ActiveBlock::Input));
         }
+        Key::Char('b') => {
+            app.set_current_route_state(Some(ActiveBlock::Books));
+        }
         _ => {}
     }
 }

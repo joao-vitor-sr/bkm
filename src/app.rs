@@ -1,7 +1,4 @@
-use crate::{
-    db::{books::Book, Db},
-    ui::list::StatefulList,
-};
+use crate::db::{books::Book, Db};
 use anyhow::Result;
 use std::path::PathBuf;
 
@@ -28,13 +25,18 @@ pub struct App<'a> {
     pub should_quit: bool,
     pub tick_rate_milliseconds: u64,
     pub db: Db,
-    pub books_list: StatefulList<(String, String)>,
+    pub books: Vec<Book>,
+    pub selected_book_index: Option<usize>,
 
-    // current value of the input box
-    pub input: String,
-
-    // history of the recorded books
-    pub books: Vec<String>,
+    // Inputs:
+    // input is the string for input;
+    // input_idx is the index of the cursor in terms of character;
+    // input_cursor_position is the sum of the width of characters preceding the cursor.
+    // Reason for this complication is due to non-ASCII characters, they may
+    // take more than 1 bytes to store and more than 1 character width to display.
+    pub input: Vec<char>,
+    pub input_idx: usize,
+    pub input_cursor_position: u16,
 }
 
 impl<'a> App<'a> {
@@ -53,16 +55,6 @@ impl<'a> App<'a> {
             current_route.block = active_block;
         }
     }
-
-    pub fn insert_books(&mut self) -> Result<()> {
-        for book in &self.books {
-            let id = Book::insert_book(&self.db.db_file_path, book)?;
-            self.books_list.items.push((book.clone(), id));
-        }
-        self.books = Vec::new();
-        Ok(())
-    }
-
     pub fn new(
         title: &'a str,
         tick_rate_milliseconds: Option<u64>,
@@ -71,7 +63,7 @@ impl<'a> App<'a> {
         let db = Db::new(custom_db_path)?;
         db.set_up_tables()?;
 
-        let books = Book::return_stateful_books(&db.db_file_path)?;
+        let books = Book::return_books(&db.db_file_path)?;
         Ok(App {
             title,
             should_quit: false,
@@ -81,9 +73,11 @@ impl<'a> App<'a> {
                 None => 250,
             },
             db,
-            books_list: books,
-            books: Vec::new(),
-            input: String::new(),
+            books,
+            selected_book_index: None,
+            input: vec![],
+            input_idx: 0,
+            input_cursor_position: 0,
         })
     }
 }
