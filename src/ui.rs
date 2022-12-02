@@ -1,4 +1,7 @@
-use crate::app::{ActiveBlock, App};
+use crate::{
+    app::{ActiveBlock, App},
+    event::Key,
+};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -86,7 +89,10 @@ impl Ui {
             _ => (
                 vec![
                     Span::raw("Press "),
-                    Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::styled(
+                        format!("{}", Key::Ctrl('c')),
+                        Style::default().add_modifier(Modifier::BOLD),
+                    ),
                     Span::raw(" to exit, "),
                     Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
                     Span::raw(" to add a book, "),

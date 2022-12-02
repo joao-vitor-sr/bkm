@@ -30,6 +30,7 @@ impl Term {
             match events.next()? {
                 event::Event::Input(key) => {
                     if key == Key::Ctrl('c') {
+                        app.should_quit = true;
                         break;
                     }
 
