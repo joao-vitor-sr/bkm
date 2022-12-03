@@ -75,6 +75,11 @@ impl Ui {
             false => Color::White,
         };
 
+        let book_id = match app.selected_book_index {
+            Some(v) => v,
+            None => 0,
+        };
+
         let (msg, style) = match app.get_current_route().block {
             ActiveBlock::Input => (
                 vec![
@@ -85,6 +90,15 @@ impl Ui {
                     Span::raw(" to record the message"),
                 ],
                 Style::default().fg(fg_color),
+            ),
+            ActiveBlock::Books => (
+                vec![
+                    Span::styled("name: ", Style::default().add_modifier(Modifier::BOLD)),
+                    Span::raw(format!("{}, ", app.books[book_id].name)),
+                ],
+                Style::default()
+                    .add_modifier(Modifier::RAPID_BLINK)
+                    .fg(fg_color),
             ),
             _ => (
                 vec![

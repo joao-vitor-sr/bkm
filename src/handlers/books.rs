@@ -7,6 +7,7 @@ use crate::{
 pub fn handler(key: Key, app: &mut App) {
     match key {
         Key::Esc => {
+            app.selected_book_index = None;
             app.set_current_route_state(Some(ActiveBlock::Home));
         }
         Key::Down => {
