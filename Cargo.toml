@@ -2,6 +2,17 @@
 name = "bkm"
 version = "0.1.0"
 edition = "2021"
+authors = ["João Vitor Silveira Ribeiro <joaovitorsrs7@gmail.com>"]
+license = "GPL-3.0-or-later"
+license-file = "LICENSE"
+description = "A terminal-based book manager"
+homepage = "https://github.com/joao-vitor-sr/bkm"
+repository = "https://github.com/joao-vitor-sr/bkm"
+documentation = "https://github.com/joao-vitor-sr/bkm"
+readme = "README.md"
+keywords = ["tui", "terminal", "bin", "books", "book"]
+categories = ["command-line-utilities"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
