@@ -19,9 +19,8 @@ const DEFAULT_ROUTE: Route = Route {
 };
 
 #[derive(Debug)]
-pub struct App<'a> {
+pub struct App {
     navigation_stack: Vec<Route>,
-    pub title: &'a str,
     pub should_quit: bool,
     pub tick_rate_milliseconds: u64,
     pub db: Db,
@@ -39,7 +38,7 @@ pub struct App<'a> {
     pub input_cursor_position: u16,
 }
 
-impl<'a> App<'a> {
+impl App {
     pub fn get_current_route(&self) -> &Route {
         // if for some reason there is no route return the default
         self.navigation_stack.last().unwrap_or(&DEFAULT_ROUTE)
@@ -56,16 +55,14 @@ impl<'a> App<'a> {
         }
     }
     pub fn new(
-        title: &'a str,
         tick_rate_milliseconds: Option<u64>,
         custom_db_path: Option<PathBuf>,
-    ) -> Result<App<'a>> {
+    ) -> Result<App> {
         let db = Db::new(custom_db_path)?;
         db.set_up_tables()?;
 
         let books = Book::return_books(&db.db_file_path)?;
         Ok(App {
-            title,
             should_quit: false,
             navigation_stack: vec![DEFAULT_ROUTE],
             tick_rate_milliseconds: match tick_rate_milliseconds {

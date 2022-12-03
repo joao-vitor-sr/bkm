@@ -56,7 +56,7 @@ impl Term {
         let mut terminal = Terminal::new(backend)?;
         terminal.hide_cursor()?;
 
-        let app = App::new("BKM - Book Manager", tick_rate_milliseconds, custom_db_path)?;
+        let app = App::new(tick_rate_milliseconds, custom_db_path)?;
         let res = Term::run_app(&mut terminal, app);
 
         disable_raw_mode()?;
