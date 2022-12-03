@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 use std::path::PathBuf;
 use uuid::Uuid;
 
@@ -10,6 +10,13 @@ pub struct Book {
 }
 
 impl Book {
+    pub fn remove_by_id(db_path: &PathBuf, id: &String) -> Result<()> {
+        let conn = Connection::open(db_path)?;
+
+        conn.execute("DELETE FROM books WHERE id = ?1", params![id])?;
+        Ok(())
+    }
+
     pub fn insert_book(db_path: &PathBuf, name: String) -> Result<(String, String)> {
         let conn = Connection::open(db_path)?;
 

@@ -7,6 +7,7 @@ pub enum ActiveBlock {
     Input,
     Books,
     Home,
+    Confirm,
 }
 
 #[derive(Debug)]
@@ -36,6 +37,9 @@ pub struct App {
     pub input: Vec<char>,
     pub input_idx: usize,
     pub input_cursor_position: u16,
+
+    // this options is only used for the Confirm route
+    pub confirm: bool,
 }
 
 impl App {
@@ -75,6 +79,7 @@ impl App {
             input: vec![],
             input_idx: 0,
             input_cursor_position: 0,
+            confirm: false,
         })
     }
 }

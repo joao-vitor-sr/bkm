@@ -4,10 +4,10 @@ use crate::{
 };
 use tui::{
     backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans, Text},
-    widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
+    widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap},
     Frame,
 };
 
@@ -15,7 +15,88 @@ use tui::{
 pub struct Ui {}
 
 impl Ui {
+    pub fn render_pop_up_confirm<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+        let book_id = match app.selected_book_index {
+            Some(i) => i,
+            None => 0,
+        };
+
+        let book = &app.books[book_id];
+        let bounds = f.size();
+        // maybe do this better
+        let width = std::cmp::min(bounds.width - 2, 45);
+        let height = 8;
+        let left = (bounds.width - width) / 2;
+        let top = bounds.height / 4;
+
+        let rect = Rect::new(left, top, width, height);
+
+        f.render_widget(Clear, rect);
+
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::Yellow));
+
+        f.render_widget(block, rect);
+
+        let vchunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(2)
+            .constraints([Constraint::Min(3), Constraint::Length(3)].as_ref())
+            .split(rect);
+
+        // suggestion: possibly put this as part of
+        // app.dialog, but would have to introduce lifetime
+        let text = vec![
+            Spans::from(Span::raw("Are you sure you want to delete the book: ")),
+            Spans::from(Span::styled(
+                book.name.as_str(),
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+            Spans::from(Span::raw("?")),
+        ];
+
+        let text = Paragraph::new(text)
+            .wrap(Wrap { trim: true })
+            .alignment(Alignment::Center);
+
+        f.render_widget(text, vchunks[0]);
+
+        let hchunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .horizontal_margin(3)
+            .constraints([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)].as_ref())
+            .split(vchunks[1]);
+
+        let ok_text = Span::raw("Ok");
+        let ok = Paragraph::new(ok_text)
+            .style(Style::default().fg(if app.confirm {
+                Color::Yellow
+            } else {
+                Color::White
+            }))
+            .alignment(Alignment::Center);
+
+        f.render_widget(ok, hchunks[0]);
+
+        let cancel_text = Span::raw("Cancel");
+        let cancel = Paragraph::new(cancel_text)
+            .style(Style::default().fg(if app.confirm {
+                Color::White
+            } else {
+                Color::Yellow
+            }))
+            .alignment(Alignment::Center);
+
+        f.render_widget(cancel, hchunks[1]);
+    }
+
     pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+        if app.get_current_route().block == ActiveBlock::Confirm {
+            Ui::render_pop_up_confirm(f, app);
+            return;
+        }
+
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
             .margin(1)
@@ -94,7 +175,7 @@ impl Ui {
             ActiveBlock::Books => (
                 vec![
                     Span::styled("name: ", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(format!("{}, ", app.books[book_id].name)),
+                    Span::raw(format!("{}", app.books[book_id].name)),
                 ],
                 Style::default()
                     .add_modifier(Modifier::RAPID_BLINK)

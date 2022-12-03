@@ -20,6 +20,9 @@ pub fn handler(key: Key, app: &mut App) {
                 common_key_events::on_up_press_handler(&app.books, app.selected_book_index);
             app.selected_book_index = Some(next_index);
         }
+        Key::Char('d') => {
+            app.set_current_route_state(Some(ActiveBlock::Confirm));
+        }
         _ => {}
     }
 }

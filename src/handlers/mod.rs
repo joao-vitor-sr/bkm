@@ -1,6 +1,8 @@
 mod books;
+mod confirm;
 mod home;
 mod input;
+
 mod common_key_events;
 
 use crate::{
@@ -27,6 +29,9 @@ fn handle_block_input(key: Key, app: &mut App) -> Result<()> {
         }
         ActiveBlock::Books => {
             books::handler(key, app);
+        }
+        ActiveBlock::Confirm => {
+            confirm::handler(key, app)?;
         }
     }
     Ok(())
