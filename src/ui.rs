@@ -150,9 +150,11 @@ impl Ui {
                 Style::default()
                     .fg(Color::LightGreen)
                     .add_modifier(Modifier::BOLD),
-            );
+            )
+            .highlight_symbol(">> ");
 
         let mut state = ListState::default();
+        state.select(app.selected_book_index);
         f.render_stateful_widget(list, area, &mut state);
     }
 }

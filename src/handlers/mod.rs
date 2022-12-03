@@ -1,6 +1,7 @@
 mod books;
 mod home;
 mod input;
+mod common_key_events;
 
 use crate::{
     app::{ActiveBlock, App},
