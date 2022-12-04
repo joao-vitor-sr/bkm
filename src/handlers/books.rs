@@ -8,7 +8,7 @@ pub fn handler(key: Key, app: &mut App) {
     match key {
         Key::Esc => {
             app.selected_book_index = None;
-            app.clear_navigation_stack();
+            app.reset_navigation_stack();
         }
         Key::Char('a') => {
             app.set_current_route_state(Some(ActiveBlock::Input));

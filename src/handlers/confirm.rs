@@ -1,14 +1,12 @@
 use anyhow::Result;
 
-use crate::{
-    app::App,
-    db::books::Book,
-    event::Key,
-};
+use crate::{app::App, db::books::Book, event::Key};
+
+use super::common_key_events;
 
 fn handle_esc(app: &mut App) {
     app.selected_book_index = None;
-    app.clear_navigation_stack();
+    app.reset_navigation_stack();
 }
 
 fn handle_enter(app: &mut App) -> Result<()> {
@@ -37,7 +35,7 @@ pub fn handler(key: Key, app: &mut App) -> Result<()> {
         Key::Esc => {
             handle_esc(app);
         }
-        Key::Right | Key::Left => app.confirm = !app.confirm,
+        k if common_key_events::any_side(k) => app.confirm = !app.confirm,
         Key::Enter => {
             handle_enter(app)?;
         }

@@ -42,8 +42,8 @@ pub struct App {
 }
 
 impl App {
-    pub fn clear_navigation_stack(&mut self) {
-        self.navigation_stack.clear();
+    pub fn reset_navigation_stack(&mut self) {
+        self.navigation_stack = vec![DEFAULT_ROUTE];
     }
 
     pub fn get_current_route(&self) -> &Route {

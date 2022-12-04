@@ -92,7 +92,7 @@ pub fn handler(key: Key, app: &mut App) -> Result<()> {
             }
         }
         Key::Esc => {
-            app.clear_navigation_stack();
+            app.reset_navigation_stack();
         }
 
         Key::Enter => {

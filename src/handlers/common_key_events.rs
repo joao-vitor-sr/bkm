@@ -34,9 +34,21 @@ pub fn on_up_press_handler<T>(selection_data: &[T], selection_index: Option<usiz
 }
 
 pub fn down_event(key: Key) -> bool {
-  matches!(key, Key::Down | Key::Char('j'))
+    matches!(key, Key::Down | Key::Char('j'))
 }
 
 pub fn up_event(key: Key) -> bool {
-  matches!(key, Key::Up | Key::Char('k'))
+    matches!(key, Key::Up | Key::Char('k'))
+}
+
+pub fn left_event(key: Key) -> bool {
+    matches!(key, Key::Left | Key::Char('h'))
+}
+
+pub fn right_event(key: Key) -> bool {
+    matches!(key, Key::Right | Key::Char('l'))
+}
+
+pub fn any_side(key: Key) -> bool {
+    left_event(key) || right_event(key)
 }
