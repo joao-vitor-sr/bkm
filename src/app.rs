@@ -6,7 +6,6 @@ use std::path::PathBuf;
 pub enum ActiveBlock {
     Input,
     Books,
-    Home,
     Confirm,
 }
 
@@ -15,8 +14,8 @@ pub struct Route {
     pub block: ActiveBlock,
 }
 
-const DEFAULT_ROUTE: Route = Route {
-    block: ActiveBlock::Home,
+pub const DEFAULT_ROUTE: Route = Route {
+    block: ActiveBlock::Books,
 };
 
 #[derive(Debug)]
@@ -43,6 +42,10 @@ pub struct App {
 }
 
 impl App {
+    pub fn clear_navigation_stack(&mut self) {
+        self.navigation_stack.clear();
+    }
+
     pub fn get_current_route(&self) -> &Route {
         // if for some reason there is no route return the default
         self.navigation_stack.last().unwrap_or(&DEFAULT_ROUTE)

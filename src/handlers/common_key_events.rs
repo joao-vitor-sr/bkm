@@ -1,3 +1,5 @@
+use crate::event::Key;
+
 pub fn on_down_press_handler<T>(selection_data: &[T], selection_index: Option<usize>) -> usize {
     match selection_index {
         Some(selection_index) => {
@@ -29,4 +31,12 @@ pub fn on_up_press_handler<T>(selection_data: &[T], selection_index: Option<usiz
         }
         None => 0,
     }
+}
+
+pub fn down_event(key: Key) -> bool {
+  matches!(key, Key::Down | Key::Char('j'))
+}
+
+pub fn up_event(key: Key) -> bool {
+  matches!(key, Key::Up | Key::Char('k'))
 }

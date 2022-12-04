@@ -1,14 +1,14 @@
 use anyhow::Result;
 
 use crate::{
-    app::{ActiveBlock, App},
+    app::App,
     db::books::Book,
     event::Key,
 };
 
 fn handle_esc(app: &mut App) {
     app.selected_book_index = None;
-    app.set_current_route_state(Some(ActiveBlock::Home));
+    app.clear_navigation_stack();
 }
 
 fn handle_enter(app: &mut App) -> Result<()> {

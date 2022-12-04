@@ -146,21 +146,36 @@ impl Ui {
     }
 
     pub fn render_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let focused = match app.get_current_route().block {
-            ActiveBlock::Home => true,
-            _ => false,
+        let render_default_msg = if app.selected_book_index == None {
+            true
+        } else {
+            false
         };
 
-        let fg_color = match focused {
-            true => Color::Yellow,
-            false => Color::White,
-        };
+        let fg_color = Color::White;
 
         let book_id = match app.selected_book_index {
             Some(v) => v,
             None => 0,
         };
 
+        let default_msg = (
+            vec![
+                Span::raw("Press "),
+                Span::styled(
+                    format!("{}", Key::Ctrl('c')),
+                    Style::default().add_modifier(Modifier::BOLD),
+                ),
+                Span::raw(" to exit, "),
+                Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to add a book, "),
+                Span::styled("b", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to select a book"),
+            ],
+            Style::default()
+                .add_modifier(Modifier::RAPID_BLINK)
+                .fg(fg_color),
+        );
         let (msg, style) = match app.get_current_route().block {
             ActiveBlock::Input => (
                 vec![
@@ -172,32 +187,22 @@ impl Ui {
                 ],
                 Style::default().fg(fg_color),
             ),
-            ActiveBlock::Books => (
-                vec![
-                    Span::styled("name: ", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(format!("{}", app.books[book_id].name)),
-                ],
-                Style::default()
-                    .add_modifier(Modifier::RAPID_BLINK)
-                    .fg(fg_color),
-            ),
-            _ => (
-                vec![
-                    Span::raw("Press "),
-                    Span::styled(
-                        format!("{}", Key::Ctrl('c')),
-                        Style::default().add_modifier(Modifier::BOLD),
-                    ),
-                    Span::raw(" to exit, "),
-                    Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to add a book, "),
-                    Span::styled("b", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to select a book"),
-                ],
-                Style::default()
-                    .add_modifier(Modifier::RAPID_BLINK)
-                    .fg(fg_color),
-            ),
+            ActiveBlock::Books => {
+                if render_default_msg {
+                    default_msg
+                } else {
+                    (
+                        vec![
+                            Span::styled("name: ", Style::default().add_modifier(Modifier::BOLD)),
+                            Span::raw(format!("{}", app.books[book_id].name)),
+                        ],
+                        Style::default()
+                            .add_modifier(Modifier::RAPID_BLINK)
+                            .fg(fg_color),
+                    )
+                }
+            }
+            _ => default_msg,
         };
 
         let mut text = Text::from(Spans::from(msg));

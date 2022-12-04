@@ -1,10 +1,6 @@
 use anyhow::Result;
 
-use crate::{
-    app::{ActiveBlock, App},
-    db::books::Book,
-    event::Key,
-};
+use crate::{app::App, db::books::Book, event::Key};
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 fn compute_character_width(character: char) -> u16 {
@@ -96,7 +92,7 @@ pub fn handler(key: Key, app: &mut App) -> Result<()> {
             }
         }
         Key::Esc => {
-            app.set_current_route_state(Some(ActiveBlock::Home));
+            app.clear_navigation_stack();
         }
 
         Key::Enter => {

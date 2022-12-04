@@ -1,6 +1,5 @@
 mod books;
 mod confirm;
-mod home;
 mod input;
 
 mod common_key_events;
@@ -23,9 +22,6 @@ fn handle_block_input(key: Key, app: &mut App) -> Result<()> {
     match current_route.block {
         ActiveBlock::Input => {
             input::handler(key, app)?;
-        }
-        ActiveBlock::Home => {
-            home::handler(key, app);
         }
         ActiveBlock::Books => {
             books::handler(key, app);
