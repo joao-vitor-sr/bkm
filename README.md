@@ -16,5 +16,8 @@ cargo install --git https://github.com/joao-vitor-sr/bkm
 
 ## Usage
 
-Run `bkm` on your terminal
+Call `bkm` in your terminal 
 
+```sh
+$ bkm
+```
