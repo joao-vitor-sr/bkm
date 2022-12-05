@@ -10,19 +10,41 @@ fn compute_character_width(character: char) -> u16 {
         .unwrap()
 }
 
+fn clear_input(app: &mut App) {
+    // clear input
+    app.input = vec![];
+    app.input_idx = 0;
+    app.input_cursor_position = 0;
+}
+
 fn process_input(app: &mut App, input: String) -> Result<()> {
     // Don't do anything if there is no input
     if input.is_empty() {
         return Ok(());
     }
 
+    match &app.selected_book_id {
+        Some(v) => {
+            Book::update_book(&app.db.db_file_path, &v, &input)?;
+            let book_index = match app.selected_book_index {
+                None => 0,
+                Some(i) => i,
+            };
+
+            app.books[book_index].name = input.clone();
+            app.selected_book_id = None;
+
+            clear_input(app);
+            app.reset_navigation_stack();
+            return Ok(());
+        }
+        None => {}
+    };
     let (id, name) = Book::insert_book(&app.db.db_file_path, input)?;
     app.books.push(Book { name, id });
 
     // clear input
-    app.input = vec![];
-    app.input_idx = 0;
-    app.input_cursor_position = 0;
+    clear_input(app);
 
     Ok(())
 }

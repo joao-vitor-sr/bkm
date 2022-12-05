@@ -25,6 +25,7 @@ pub struct App {
     pub tick_rate_milliseconds: u64,
     pub db: Db,
     pub books: Vec<Book>,
+    pub selected_book_id: Option<String>,
     pub selected_book_index: Option<usize>,
 
     // Inputs:
@@ -79,6 +80,7 @@ impl App {
             db,
             books,
             selected_book_index: None,
+            selected_book_id: None,
             input: vec![],
             input_idx: 0,
             input_cursor_position: 0,

@@ -59,4 +59,15 @@ impl Book {
 
         Ok(())
     }
+
+    pub fn update_book(db_path: &PathBuf, id: &String, name: &String) -> Result<()> {
+        let conn = Connection::open(db_path)?;
+
+        conn.execute(
+            "UPDATE books SET name = ?1 WHERE id = ?2",
+            params![name, id],
+        )?;
+
+        Ok(())
+    }
 }
