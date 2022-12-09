@@ -11,13 +11,11 @@ use crate::{
 use anyhow::Result;
 
 pub fn handle_app(key: Key, app: &mut App) -> Result<()> {
-    match key {
-        _ => handle_block_input(key, app)?,
-    }
+    handle_blocks_input(key, app)?;
     Ok(())
 }
 
-fn handle_block_input(key: Key, app: &mut App) -> Result<()> {
+fn handle_blocks_input(key: Key, app: &mut App) -> Result<()> {
     let current_route = app.get_current_route();
     match current_route.block {
         ActiveBlock::Input => {

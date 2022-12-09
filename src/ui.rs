@@ -108,8 +108,70 @@ impl Ui {
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
             .split(area);
 
-        Ui::render_msg(f, app, vertical_layout[0]);
+        match app.get_current_route().block {
+            ActiveBlock::Input => Ui::render_msg_input(f, app, vertical_layout[0]),
+            _ => {
+                if app.selected_book_index == None {
+                    Ui::render_msg_welcome(f, app, vertical_layout[0]);
+                } else {
+                    Ui::render_msg_book(f, app, vertical_layout[0]);
+                }
+            }
+        };
+
         Ui::render_input(f, app, vertical_layout[1]);
+    }
+
+    pub fn render_msg_book<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+        let book_id = match app.selected_book_index {
+            Some(v) => v,
+            None => 0,
+        };
+        let (msg, style) = (
+            vec![
+                Span::styled("name: ", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(format!("{}", app.books[book_id].name)),
+            ],
+            Style::default()
+                .add_modifier(Modifier::RAPID_BLINK)
+                .fg(app.theme.text),
+        );
+        Ui::render_msg(f, app, area, msg, style);
+    }
+
+    pub fn render_msg_welcome<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+        let (msg, style) = (
+            vec![
+                Span::raw("Press "),
+                Span::styled(
+                    format!("{}", Key::Ctrl('c')),
+                    Style::default().add_modifier(Modifier::BOLD),
+                ),
+                Span::raw(" to exit, "),
+                Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to add a book, "),
+                Span::styled("b", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to select a book"),
+            ],
+            Style::default()
+                .add_modifier(Modifier::RAPID_BLINK)
+                .fg(app.theme.text),
+        );
+        Ui::render_msg(f, app, area, msg, style);
+    }
+    pub fn render_msg_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+        let (msg, style) = (
+            vec![
+                Span::raw("Press "),
+                Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to stop editing, "),
+                Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to record the message"),
+            ],
+            Style::default().fg(app.theme.text),
+        );
+
+        Ui::render_msg(f, app, area, msg, style);
     }
 
     pub fn render_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
@@ -140,64 +202,13 @@ impl Ui {
         }
     }
 
-    pub fn render_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let render_default_msg = if app.selected_book_index == None {
-            true
-        } else {
-            false
-        };
-
-        let book_id = match app.selected_book_index {
-            Some(v) => v,
-            None => 0,
-        };
-
-        let default_msg = (
-            vec![
-                Span::raw("Press "),
-                Span::styled(
-                    format!("{}", Key::Ctrl('c')),
-                    Style::default().add_modifier(Modifier::BOLD),
-                ),
-                Span::raw(" to exit, "),
-                Span::styled("a", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to add a book, "),
-                Span::styled("b", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to select a book"),
-            ],
-            Style::default()
-                .add_modifier(Modifier::RAPID_BLINK)
-                .fg(app.theme.text),
-        );
-        let (msg, style) = match app.get_current_route().block {
-            ActiveBlock::Input => (
-                vec![
-                    Span::raw("Press "),
-                    Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to stop editing, "),
-                    Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
-                    Span::raw(" to record the message"),
-                ],
-                Style::default().fg(app.theme.text),
-            ),
-            ActiveBlock::Books => {
-                if render_default_msg {
-                    default_msg
-                } else {
-                    (
-                        vec![
-                            Span::styled("name: ", Style::default().add_modifier(Modifier::BOLD)),
-                            Span::raw(format!("{}", app.books[book_id].name)),
-                        ],
-                        Style::default()
-                            .add_modifier(Modifier::RAPID_BLINK)
-                            .fg(app.theme.text),
-                    )
-                }
-            }
-            _ => default_msg,
-        };
-
+    pub fn render_msg<B: Backend>(
+        f: &mut Frame<B>,
+        app: &mut App,
+        area: Rect,
+        msg: Vec<Span>,
+        style: Style,
+    ) {
         let mut text = Text::from(Spans::from(msg));
         text.patch_style(style);
         let help_msg = Paragraph::new(text).block(
