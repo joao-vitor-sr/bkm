@@ -5,7 +5,7 @@ use crate::{
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
+    style::{Modifier, Style},
     text::{Span, Spans, Text},
     widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap},
     Frame,
@@ -15,7 +15,7 @@ use tui::{
 pub struct Ui {}
 
 impl Ui {
-    pub fn render_pop_up_confirm<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+    pub fn draw_confirm<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         let book_id = match app.selected_book_index {
             Some(i) => i,
             None => 0,
@@ -35,7 +35,7 @@ impl Ui {
 
         let block = Block::default()
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::Yellow));
+            .border_style(Style::default().fg(app.theme.active));
 
         f.render_widget(block, rect);
 
@@ -71,9 +71,9 @@ impl Ui {
         let ok_text = Span::raw("Ok");
         let ok = Paragraph::new(ok_text)
             .style(Style::default().fg(if app.confirm {
-                Color::Yellow
+                app.theme.active
             } else {
-                Color::White
+                app.theme.inactive
             }))
             .alignment(Alignment::Center);
 
@@ -82,9 +82,9 @@ impl Ui {
         let cancel_text = Span::raw("Cancel");
         let cancel = Paragraph::new(cancel_text)
             .style(Style::default().fg(if app.confirm {
-                Color::White
+                app.theme.inactive
             } else {
-                Color::Yellow
+                app.theme.active
             }))
             .alignment(Alignment::Center);
 
@@ -92,11 +92,6 @@ impl Ui {
     }
 
     pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
-        if app.get_current_route().block == ActiveBlock::Confirm {
-            Ui::render_pop_up_confirm(f, app);
-            return;
-        }
-
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
             .margin(1)
@@ -104,10 +99,10 @@ impl Ui {
             .split(f.size());
 
         Ui::render_books(f, app, chunks[0]);
-        Ui::render_second_split(f, app, chunks[1]);
+        Ui::redner_main_block(f, app, chunks[1]);
     }
 
-    pub fn render_second_split<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    pub fn redner_main_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         let vertical_layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
@@ -124,8 +119,8 @@ impl Ui {
         };
 
         let fg_color = match focused {
-            true => Color::Yellow,
-            false => Color::White,
+            true => app.theme.active,
+            false => app.theme.inactive,
         };
 
         let input_string: String = app.input.iter().collect();
@@ -152,8 +147,6 @@ impl Ui {
             false
         };
 
-        let fg_color = Color::White;
-
         let book_id = match app.selected_book_index {
             Some(v) => v,
             None => 0,
@@ -174,7 +167,7 @@ impl Ui {
             ],
             Style::default()
                 .add_modifier(Modifier::RAPID_BLINK)
-                .fg(fg_color),
+                .fg(app.theme.text),
         );
         let (msg, style) = match app.get_current_route().block {
             ActiveBlock::Input => (
@@ -185,7 +178,7 @@ impl Ui {
                     Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
                     Span::raw(" to record the message"),
                 ],
-                Style::default().fg(fg_color),
+                Style::default().fg(app.theme.text),
             ),
             ActiveBlock::Books => {
                 if render_default_msg {
@@ -198,7 +191,7 @@ impl Ui {
                         ],
                         Style::default()
                             .add_modifier(Modifier::RAPID_BLINK)
-                            .fg(fg_color),
+                            .fg(app.theme.text),
                     )
                 }
             }
@@ -209,7 +202,7 @@ impl Ui {
         text.patch_style(style);
         let help_msg = Paragraph::new(text).block(
             Block::default()
-                .style(Style::default().fg(fg_color))
+                .style(Style::default().fg(app.theme.text))
                 .title("Home")
                 .borders(Borders::ALL),
         );
@@ -225,8 +218,8 @@ impl Ui {
         };
 
         let fg_color = match focused {
-            true => Color::Yellow,
-            _ => Color::White,
+            true => app.theme.active,
+            _ => app.theme.inactive,
         };
 
         let items = if app.books.len() == 0 {
@@ -248,7 +241,7 @@ impl Ui {
             .style(Style::default().fg(fg_color))
             .highlight_style(
                 Style::default()
-                    .fg(Color::LightGreen)
+                    .fg(app.theme.text)
                     .add_modifier(Modifier::BOLD),
             )
             .highlight_symbol(">> ");

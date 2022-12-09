@@ -1,6 +1,7 @@
 use crate::db::{books::Book, Db};
 use anyhow::Result;
 use std::path::PathBuf;
+use tui::style::Color;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ActiveBlock {
@@ -18,6 +19,13 @@ pub const DEFAULT_ROUTE: Route = Route {
     block: ActiveBlock::Books,
 };
 
+#[derive(Copy, Clone, Debug)]
+pub struct Theme {
+    pub active: Color,
+    pub inactive: Color,
+    pub text: Color,
+}
+
 #[derive(Debug)]
 pub struct App {
     navigation_stack: Vec<Route>,
@@ -27,6 +35,7 @@ pub struct App {
     pub books: Vec<Book>,
     pub selected_book_id: Option<String>,
     pub selected_book_index: Option<usize>,
+    pub theme: Theme,
 
     // Inputs:
     // input is the string for input;
@@ -85,6 +94,17 @@ impl App {
             input_idx: 0,
             input_cursor_position: 0,
             confirm: false,
+            theme: Default::default(),
         })
+    }
+}
+
+impl Default for Theme {
+    fn default() -> Self {
+        Theme {
+            active: Color::Cyan,
+            inactive: Color::Gray,
+            text: Color::White,
+        }
     }
 }

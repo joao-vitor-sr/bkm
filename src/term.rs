@@ -11,7 +11,7 @@ use tui::{
 };
 
 use crate::{
-    app::App,
+    app::{ActiveBlock, App},
     event::{self, Key},
     handlers,
     ui::Ui,
@@ -25,7 +25,12 @@ impl Term {
         let events = event::Events::new(app.tick_rate_milliseconds);
 
         Ok(loop {
-            terminal.draw(|f| Ui::draw(f, &mut app))?;
+            terminal.draw(|f| match app.get_current_route().block {
+                ActiveBlock::Confirm => {
+                    Ui::draw_confirm(f, &mut app);
+                }
+                _ => Ui::draw(f, &mut app),
+            })?;
 
             match events.next()? {
                 event::Event::Input(key) => {
