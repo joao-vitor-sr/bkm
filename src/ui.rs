@@ -1,3 +1,5 @@
+pub mod input_layout;
+
 use crate::{
     app::{ActiveBlock, App},
     event::Key,
@@ -15,6 +17,27 @@ use tui::{
 pub struct Ui {}
 
 impl Ui {
+    pub fn draw_main_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(1)
+            .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
+            .split(f.size());
+
+        Ui::render_books(f, app, chunks[0]);
+
+        match app.get_current_route().block {
+            ActiveBlock::Input => Ui::render_msg_input(f, app, chunks[1]),
+            _ => {
+                if app.selected_book_index == None {
+                    Ui::render_msg_welcome(f, app, chunks[1]);
+                } else {
+                    Ui::render_msg_book(f, app, chunks[1]);
+                }
+            }
+        };
+    }
+
     pub fn draw_confirm<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         let book_id = match app.selected_book_index {
             Some(i) => i,
@@ -91,37 +114,6 @@ impl Ui {
         f.render_widget(cancel, hchunks[1]);
     }
 
-    pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
-        let chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(1)
-            .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
-            .split(f.size());
-
-        Ui::render_books(f, app, chunks[0]);
-        Ui::redner_main_block(f, app, chunks[1]);
-    }
-
-    pub fn redner_main_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let vertical_layout = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
-            .split(area);
-
-        match app.get_current_route().block {
-            ActiveBlock::Input => Ui::render_msg_input(f, app, vertical_layout[0]),
-            _ => {
-                if app.selected_book_index == None {
-                    Ui::render_msg_welcome(f, app, vertical_layout[0]);
-                } else {
-                    Ui::render_msg_book(f, app, vertical_layout[0]);
-                }
-            }
-        };
-
-        Ui::render_input(f, app, vertical_layout[1]);
-    }
-
     pub fn render_msg_book<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         let book_id = match app.selected_book_index {
             Some(v) => v,
@@ -172,34 +164,6 @@ impl Ui {
         );
 
         Ui::render_msg(f, app, area, msg, style);
-    }
-
-    pub fn render_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-        let focused = match app.get_current_route().block {
-            ActiveBlock::Input => true,
-            _ => false,
-        };
-
-        let fg_color = match focused {
-            true => app.theme.active,
-            false => app.theme.inactive,
-        };
-
-        let input_string: String = app.input.iter().collect();
-        let lines = Text::from((&input_string).as_str());
-
-        let input = Paragraph::new(lines).block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title(Span::styled("Book", Style::default().fg(fg_color)))
-                .border_style(Style::default().fg(fg_color)),
-        );
-        f.render_widget(input, area);
-
-        match focused {
-            true => f.set_cursor(area.x + app.input.len() as u16 + 1, area.y + 1),
-            _ => {}
-        }
     }
 
     pub fn render_msg<B: Backend>(

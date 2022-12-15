@@ -7,6 +7,15 @@ use uuid::Uuid;
 pub struct Book {
     pub id: String,
     pub name: String,
+    pub author: String,
+    pub date: String,
+}
+
+#[derive(Debug)]
+pub enum BookInputs {
+    Name,
+    Author,
+    Date,
 }
 
 impl Book {
@@ -31,11 +40,13 @@ impl Book {
     pub fn return_books(db_path: &PathBuf) -> Result<Vec<Book>> {
         let conn = Connection::open(db_path)?;
 
-        let mut stmt = conn.prepare("SELECT id, name FROM books")?;
+        let mut stmt = conn.prepare("SELECT id, name, author, date FROM books")?;
         let book_iter = stmt.query_map([], |row| {
             Ok(Book {
                 id: row.get(0)?,
                 name: row.get(1)?,
+                author: row.get(2)?,
+                date: row.get(3)?,
             })
         })?;
 
@@ -53,7 +64,10 @@ impl Book {
         conn.execute(
             "CREATE TABLE IF NOT EXISTS books (
                         id TEXT PRIMARY KEY,
-                        name TEXT NOT NULL)",
+                        name TEXT NOT NULL,
+                        author TEXT,
+                        date TEXT
+)",
             (),
         )?;
 
@@ -69,5 +83,14 @@ impl Book {
         )?;
 
         Ok(())
+    }
+
+    pub fn new() -> Book {
+        Book {
+            id: String::new(),
+            name: String::new(),
+            date: String::new(),
+            author: String::new(),
+        }
     }
 }

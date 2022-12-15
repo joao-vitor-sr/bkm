@@ -1,4 +1,7 @@
-use crate::db::{books::Book, Db};
+use crate::db::{
+    books::{Book, BookInputs},
+    Db,
+};
 use anyhow::Result;
 use std::path::PathBuf;
 use tui::style::Color;
@@ -33,22 +36,14 @@ pub struct App {
     pub tick_rate_milliseconds: u64,
     pub db: Db,
     pub books: Vec<Book>,
+    pub book: Book,
     pub selected_book_id: Option<String>,
     pub selected_book_index: Option<usize>,
     pub theme: Theme,
 
-    // Inputs:
-    // input is the string for input;
-    // input_idx is the index of the cursor in terms of character;
-    // input_cursor_position is the sum of the width of characters preceding the cursor.
-    // Reason for this complication is due to non-ASCII characters, they may
-    // take more than 1 bytes to store and more than 1 character width to display.
-    pub input: Vec<char>,
-    pub input_idx: usize,
-    pub input_cursor_position: u16,
-
     // this options is only used for the Confirm route
     pub confirm: bool,
+    pub selected_input: BookInputs,
 }
 
 impl App {
@@ -80,6 +75,7 @@ impl App {
 
         let books = Book::return_books(&db.db_file_path)?;
         Ok(App {
+            book: Book::new(),
             should_quit: false,
             navigation_stack: vec![DEFAULT_ROUTE],
             tick_rate_milliseconds: match tick_rate_milliseconds {
@@ -90,11 +86,9 @@ impl App {
             books,
             selected_book_index: None,
             selected_book_id: None,
-            input: vec![],
-            input_idx: 0,
-            input_cursor_position: 0,
             confirm: false,
             theme: Default::default(),
+            selected_input: BookInputs::Name,
         })
     }
 }

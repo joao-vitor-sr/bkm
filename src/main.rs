@@ -5,11 +5,11 @@ use term::Term;
 
 mod app;
 mod cli;
+mod db;
+mod event;
+mod handlers;
 mod term;
 mod ui;
-mod db;
-mod handlers;
-mod event;
 
 fn main() -> Result<()> {
     let args = Cli::parse();

@@ -14,7 +14,7 @@ use crate::{
     app::{ActiveBlock, App},
     event::{self, Key},
     handlers,
-    ui::Ui,
+    ui::{input_layout::UiInputLayout, Ui},
 };
 
 #[derive(Debug)]
@@ -29,7 +29,8 @@ impl Term {
                 ActiveBlock::Confirm => {
                     Ui::draw_confirm(f, &mut app);
                 }
-                _ => Ui::draw(f, &mut app),
+                ActiveBlock::Input => UiInputLayout::draw(f, &mut app),
+                _ => Ui::draw_main_layout(f, &mut app),
             })?;
 
             match events.next()? {
