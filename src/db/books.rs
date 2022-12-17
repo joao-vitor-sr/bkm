@@ -3,7 +3,7 @@ use rusqlite::{params, Connection};
 use std::path::PathBuf;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Book {
     pub id: String,
     pub name: String,
@@ -26,16 +26,16 @@ impl Book {
         Ok(())
     }
 
-    pub fn insert_book(db_path: &PathBuf, name: String) -> Result<(String, String)> {
+    pub fn insert_book(&mut self, db_path: &PathBuf) -> Result<()> {
         let conn = Connection::open(db_path)?;
 
-        let id = Uuid::new_v4().hyphenated().to_string();
+        self.id = Uuid::new_v4().hyphenated().to_string();
 
         conn.execute(
-            "INSERT INTO books (name, id) VALUES (?1, ?2)",
-            (name.clone(), id.clone()),
+            "INSERT INTO books (name, author, date, id) VALUES (?1, ?2, ?3, ?4)",
+            (self.name.as_str(), self.author.as_str(), self.date.as_str(), self.id.as_str()),
         )?;
-        Ok((id, name))
+        Ok(())
     }
     pub fn return_books(db_path: &PathBuf) -> Result<Vec<Book>> {
         let conn = Connection::open(db_path)?;

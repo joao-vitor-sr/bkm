@@ -36,7 +36,9 @@ pub struct App {
     pub tick_rate_milliseconds: u64,
     pub db: Db,
     pub books: Vec<Book>,
-    pub book: Book,
+
+    pub book: Option<Book>,
+
     pub selected_book_id: Option<String>,
     pub selected_book_index: Option<usize>,
     pub theme: Theme,
@@ -75,7 +77,7 @@ impl App {
 
         let books = Book::return_books(&db.db_file_path)?;
         Ok(App {
-            book: Book::new(),
+            book: None,
             should_quit: false,
             navigation_stack: vec![DEFAULT_ROUTE],
             tick_rate_milliseconds: match tick_rate_milliseconds {

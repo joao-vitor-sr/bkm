@@ -38,7 +38,10 @@ impl UiInputLayout {
             _ => false,
         };
 
-        let lines = Text::from(app.book.date.as_str());
+        let lines = Text::from(match &app.book {
+            Some(b) => b.date.as_str(),
+            None => "",
+        });
 
         let input = Paragraph::new(lines).block(
             Block::default()
@@ -56,7 +59,15 @@ impl UiInputLayout {
             return;
         }
 
-        f.set_cursor(area.x + app.book.date.width() as u16 + 1, area.y + 1);
+        f.set_cursor(
+            area.x
+                + match &app.book {
+                    Some(b) => b.date.width(),
+                    None => 0,
+                } as u16
+                + 1,
+            area.y + 1,
+        );
     }
 
     pub fn render_input_author<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
@@ -65,7 +76,10 @@ impl UiInputLayout {
             _ => false,
         };
 
-        let lines = Text::from(app.book.author.as_str());
+        let lines = Text::from(match &app.book {
+            Some(b) => b.author.as_str(),
+            None => "",
+        });
 
         let input = Paragraph::new(lines).block(
             Block::default()
@@ -83,7 +97,15 @@ impl UiInputLayout {
             return;
         }
 
-        f.set_cursor(area.x + app.book.author.width() as u16 + 1, area.y + 1);
+        f.set_cursor(
+            area.x
+                + match &app.book {
+                    Some(b) => b.author.width(),
+                    None => 0,
+                } as u16
+                + 1,
+            area.y + 1,
+        );
     }
 
     pub fn render_input_name<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
@@ -92,7 +114,10 @@ impl UiInputLayout {
             _ => false,
         };
 
-        let lines = Text::from(app.book.name.as_str());
+        let lines = Text::from(match &app.book {
+            Some(b) => b.name.as_str(),
+            None => "",
+        });
 
         let input = Paragraph::new(lines).block(
             Block::default()
@@ -110,6 +135,14 @@ impl UiInputLayout {
             return;
         }
 
-        f.set_cursor(area.x + app.book.name.width() as u16 + 1, area.y + 1);
+        f.set_cursor(
+            area.x
+                + match &app.book {
+                    Some(b) => b.name.width(),
+                    None => 0,
+                } as u16
+                + 1,
+            area.y + 1,
+        );
     }
 }

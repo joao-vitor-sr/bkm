@@ -1,8 +1,22 @@
 use anyhow::Result;
 
-use crate::{app::App, db::books::BookInputs, event::Key};
+use crate::{
+    app::App,
+    db::books::{Book, BookInputs},
+    event::Key,
+};
 
 fn process_input(app: &mut App) -> Result<()> {
+    if let Some(book) = &mut app.book {
+        book.insert_book(&app.db.db_file_path)?;
+
+        app.books.push(book.clone());
+
+        app.book = None;
+        app.reset_navigation_stack();
+
+        app.selected_input = BookInputs::Name;
+    }
     Ok(())
 }
 
@@ -24,30 +38,43 @@ pub fn handler(key: Key, app: &mut App) -> Result<()> {
             process_input(app)?;
         }
 
-        Key::Char(c) => match app.selected_input {
-            BookInputs::Name => {
-                app.book.name.push(c);
+        Key::Char(c) => {
+            match app.book {
+                None => {
+                    app.book = Some(Book::new());
+                }
+                _ => {}
+            };
+
+            if let Some(book) = &mut app.book {
+                match app.selected_input {
+                    BookInputs::Name => {
+                        book.name.push(c);
+                    }
+                    BookInputs::Date => {
+                        book.date.push(c);
+                    }
+                    BookInputs::Author => {
+                        book.author.push(c);
+                    }
+                }
             }
-            BookInputs::Date => {
-                app.book.date.push(c);
-            }
-            BookInputs::Author => {
-                app.book.author.push(c);
-            }
-        },
+        }
 
         Key::Backspace | Key::Ctrl('h') => {
-            match app.selected_input {
-                BookInputs::Name => {
-                    app.book.name.pop();
-                }
-                BookInputs::Author => {
-                    app.book.author.pop();
-                }
-                BookInputs::Date => {
-                    app.book.date.pop();
-                }
-            };
+            if let Some(book) = &mut app.book {
+                match app.selected_input {
+                    BookInputs::Name => {
+                        book.name.pop();
+                    }
+                    BookInputs::Author => {
+                        book.author.pop();
+                    }
+                    BookInputs::Date => {
+                        book.date.pop();
+                    }
+                };
+            }
         }
 
         _ => {}
