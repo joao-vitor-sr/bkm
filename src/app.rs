@@ -39,7 +39,6 @@ pub struct App {
 
     pub book: Option<Book>,
 
-    pub selected_book_id: Option<String>,
     pub selected_book_index: Option<usize>,
     pub theme: Theme,
 
@@ -87,7 +86,6 @@ impl App {
             db,
             books,
             selected_book_index: None,
-            selected_book_id: None,
             confirm: false,
             theme: Default::default(),
             selected_input: BookInputs::Name,

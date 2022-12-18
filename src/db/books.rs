@@ -26,6 +26,16 @@ impl Book {
         Ok(())
     }
 
+    pub fn save_record(&mut self, db_path: &PathBuf) -> Result<()> {
+        if self.id == "" {
+            self.insert_book(db_path)?;
+        } else {
+            self.update_book(db_path)?;
+        }
+
+        Ok(())
+    }
+
     pub fn insert_book(&mut self, db_path: &PathBuf) -> Result<()> {
         let conn = Connection::open(db_path)?;
 
@@ -33,7 +43,12 @@ impl Book {
 
         conn.execute(
             "INSERT INTO books (name, author, date, id) VALUES (?1, ?2, ?3, ?4)",
-            (self.name.as_str(), self.author.as_str(), self.date.as_str(), self.id.as_str()),
+            (
+                self.name.as_str(),
+                self.author.as_str(),
+                self.date.as_str(),
+                self.id.as_str(),
+            ),
         )?;
         Ok(())
     }
@@ -74,12 +89,12 @@ impl Book {
         Ok(())
     }
 
-    pub fn update_book(db_path: &PathBuf, id: &String, name: &String) -> Result<()> {
+    pub fn update_book(&mut self, db_path: &PathBuf) -> Result<()> {
         let conn = Connection::open(db_path)?;
 
         conn.execute(
             "UPDATE books SET name = ?1 WHERE id = ?2",
-            params![name, id],
+            params![self.name.as_str(), self.id.as_str()],
         )?;
 
         Ok(())

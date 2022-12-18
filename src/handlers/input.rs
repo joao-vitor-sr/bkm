@@ -8,7 +8,12 @@ use crate::{
 
 fn process_input(app: &mut App) -> Result<()> {
     if let Some(book) = &mut app.book {
-        book.insert_book(&app.db.db_file_path)?;
+        book.save_record(&app.db.db_file_path)?;
+
+        if let Some(id) = app.selected_book_index {
+            app.books.swap_remove(id);
+            app.selected_book_index = None;
+        }
 
         app.books.push(book.clone());
 
@@ -31,6 +36,14 @@ pub fn handler(key: Key, app: &mut App) -> Result<()> {
         }
 
         Key::Esc => {
+            match &app.book {
+                Some(b) => {
+                    if b.id != "" {
+                        app.book = None
+                    }
+                }
+                None => {}
+            };
             app.reset_navigation_stack();
         }
 
