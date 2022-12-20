@@ -29,7 +29,7 @@ $ git clone https://github.com/joao-vitor-sr/bkm
 $ cd bkm
 $ cargo build --release
 $ ./target/release/bkm --version
-0.2.0
+0.2.1
 ```
 
 ## Usage
