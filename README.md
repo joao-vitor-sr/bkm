@@ -12,7 +12,7 @@ If you're a **Rust programmer**, bkm can be installed with `cargo`.
   although bkm may work with older versions.
 
 ```
-$ cargo install ripgrep
+$ cargo install bkm
 ```
 
 ### Building
@@ -29,7 +29,7 @@ $ git clone https://github.com/joao-vitor-sr/bkm
 $ cd bkm
 $ cargo build --release
 $ ./target/release/bkm --version
-0.2.1
+0.2.2
 ```
 
 ## Usage
