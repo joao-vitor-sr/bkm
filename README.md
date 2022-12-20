@@ -2,6 +2,8 @@
 
 📕 A terminal-based book manager, written in Rust 🦀
 
+![GIF](./assets/demo.gif)
+
 ## Installing
 
 If you're a **Rust programmer**, bkm can be installed with `cargo`.
